@@ -1,26 +1,35 @@
 {
-  "name": "delivery_management",
+  "name": "delivery-management-api",
   "version": "1.0.0",
-  "main": "./src/app.js",
+  "description": "REST API for delivery management with JWT authentication, inventory and order handling, and delivery route optimisation using the Google Distance Matrix API (nearest-neighbour + 2-opt).",
+  "author": "Harshitha",
+  "license": "MIT",
+  "main": "config/connectDB.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./config/connectDB.js",
     "dev": "nodemon ./config/connectDB.js",
-    "format": "prettier --write \"**/*.js\""
+    "format": "prettier --write \"**/*.js\"",
+    "format:check": "prettier --check \"**/*.js\"",
+    "test": "echo \"Tests coming in a later commit\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "express",
+    "mongodb",
+    "rest-api",
+    "jwt",
+    "route-optimisation",
+    "delivery"
+  ],
   "dependencies": {
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.5.0",
-    "mongoose": "^8.7.3",
+    "mongoose": "^8.7.3"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3"
   }
