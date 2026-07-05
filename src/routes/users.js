@@ -1,6 +1,13 @@
 const express = require("express");
 const userController = require("../controllers/users");
 const asyncHandler = require("../utils/asyncHandler");
+const validate = require("../middleware/validate");
+const {
+  idParamRule,
+  sortRule,
+  dateRangeRules,
+  editProfileRules,
+} = require("../validators/userValidators");
 
 const router = express.Router();
 
@@ -16,6 +23,8 @@ router.get(
 // Update a user by id
 router.put(
   "/updateUser/:id",
+  idParamRule,
+  validate,
   asyncHandler(async (req, res) => {
     const data = await userController.updateUsers(req.params.id, req.body);
     res.status(200).json(data);
@@ -25,6 +34,8 @@ router.put(
 // Delete a user by id
 router.delete(
   "/deleteUser/:id",
+  idParamRule,
+  validate,
   asyncHandler(async (req, res) => {
     const data = await userController.deleteUser(req.params.id);
     res.status(200).json(data);
@@ -34,6 +45,8 @@ router.delete(
 // Sorted users: /users/fetchSortedUsers?sortOrder=desc
 router.get(
   "/fetchSortedUsers",
+  sortRule,
+  validate,
   asyncHandler(async (req, res) => {
     const data = await userController.fetchSortedUsers({ sortOrder: req.query.sortOrder });
     res.status(200).json(data);
@@ -43,6 +56,8 @@ router.get(
 // Users within date range: /users/fetchUsersByDateRange?startDateStr=01/01/2026&endDateStr=31/01/2026
 router.get(
   "/fetchUsersByDateRange",
+  dateRangeRules,
+  validate,
   asyncHandler(async (req, res) => {
     const data = await userController.fetchUsersByDateRange({
       startDateStr: req.query.startDateStr,
@@ -55,6 +70,8 @@ router.get(
 // Edit own profile (userId comes from the JWT via authenticate middleware)
 router.put(
   "/edit-profile",
+  editProfileRules,
+  validate,
   asyncHandler(async (req, res) => {
     const data = await userController.editProfile(req.userId, req.body);
     res.status(200).json(data);
