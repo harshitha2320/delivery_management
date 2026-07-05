@@ -4,10 +4,10 @@
   "description": "REST API for delivery management with JWT authentication, inventory and order handling, and delivery route optimisation using the Google Distance Matrix API (nearest-neighbour + 2-opt).",
   "author": "Harshitha",
   "license": "MIT",
-  "main": "config/connectDB.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node ./config/connectDB.js",
-    "dev": "nodemon ./config/connectDB.js",
+    "start": "node ./src/server.js",
+    "dev": "nodemon ./src/server.js",
     "format": "prettier --write \"**/*.js\"",
     "format:check": "prettier --check \"**/*.js\"",
     "test": "echo \"Tests coming in a later commit\" && exit 0"
