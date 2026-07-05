@@ -1,49 +1,31 @@
 const inventorySchema = require("../models/inventorySchema");
+const ApiError = require("../utils/ApiError");
 
 // Create new Inventory
 const addInventory = async (data) => {
-  try {
-    const existInventory = await inventorySchema.findOne({ name: data.name });
-    if (existInventory) {
-      return { message: "Inventory already exists!" };
-    } else {
-      const newInventory = await inventorySchema.create(data);
-      return { message: "Inventory added ", data: newInventory };
-    }
-  } catch (err) {
-    console.error(err);
-    return { message: "Error adding inventory", error: err.message };
+  const existInventory = await inventorySchema.findOne({ name: data.name });
+  if (existInventory) {
+    throw new ApiError(409, "An inventory with this name already exists");
   }
+  const newInventory = await inventorySchema.create(data);
+  return { message: "Inventory added", data: newInventory };
 };
 
-// Updating existing Inventory
+// Update existing Inventory
 const updateInventory = async (id, data) => {
-  try {
-    const inventory = await inventorySchema.findByIdAndUpdate(id, data, { new: true });
-    if (inventory) {
-      return { message: "Updated succesfully", data: inventory };
-    } else {
-      return { message: "Inventory not found" };
-    }
-  } catch (err) {
-    console.error(err);
-    return { message: "Something went wrong!", error: err.message };
-  }
+  const inventory = await inventorySchema.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
+  if (!inventory) throw new ApiError(404, "Inventory not found");
+  return { message: "Updated successfully", data: inventory };
 };
 
-// Delete exisiting Inventory
+// Delete existing Inventory
 const deleteInventory = async (id) => {
-  try {
-    const inventory = await inventorySchema.findByIdAndDelete(id);
-    if (inventory) {
-      return { message: "Deleted Successfully", data: inventory };
-    } else {
-      return { message: "Inventory not found" };
-    }
-  } catch (err) {
-    console.error(err);
-    return { message: "Something went wrong", error: err.message };
-  }
+  const inventory = await inventorySchema.findByIdAndDelete(id);
+  if (!inventory) throw new ApiError(404, "Inventory not found");
+  return { message: "Deleted successfully", data: inventory };
 };
 
 module.exports = { addInventory, updateInventory, deleteInventory };

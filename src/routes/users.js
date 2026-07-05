@@ -1,86 +1,64 @@
 const express = require("express");
 const userController = require("../controllers/users");
+const asyncHandler = require("../utils/asyncHandler");
 
 const router = express.Router();
 
-// Adding users
-router.post("/addUser", async (req, res, next) => {
-  try {
-    const data = await userController.addUsers(req.body);
-    res.status(200).send(data);
-    return next();
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Something went wrong while adding user details" });
-    return next(error);
-  }
-});
-
-router.get("/getAllUser", async (req, res, next) => {
-  try {
+// Get all users
+router.get(
+  "/getAllUser",
+  asyncHandler(async (req, res) => {
     const data = await userController.getAllUsers();
-    res.status(200).send(data);
-    return next();
-  } catch (error) {
-    res.status(500).send({ succes: false, message: "Something went wrong!" });
-    return next(error);
-  }
-});
+    res.status(200).json(data);
+  })
+);
 
-router.put("/updateUser/:id", async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    const data = await userController.updateUsers(id, req.body);
-    res.status(200).send(data);
-    return next();
-  } catch (err) {
-    res.status(500).send({ succes: false, message: "Something went wrong" });
-    return next(err);
-  }
-});
+// Update a user by id
+router.put(
+  "/updateUser/:id",
+  asyncHandler(async (req, res) => {
+    const data = await userController.updateUsers(req.params.id, req.body);
+    res.status(200).json(data);
+  })
+);
 
-router.delete("/deleteUser/:id", async (req, res, next) => {
-  try {
+// Delete a user by id
+router.delete(
+  "/deleteUser/:id",
+  asyncHandler(async (req, res) => {
     const data = await userController.deleteUser(req.params.id);
-    res.status(200).send({ message: "Data deleted succesfully", data });
-    return next();
-  } catch (err) {
-    res.status(500).send({ message: "Something went wrong" });
-    return next(err);
-  }
-});
+    res.status(200).json(data);
+  })
+);
 
-//  Sort users
-router.get("/fetchSortedUsers", async (req, res, next) => {
-  try {
-    const data = await userController.fetchSortedUsers(req.body);
-    res.status(200).send({ message: "Users sorted by Registration Time", data });
-    return next();
-  } catch (err) {
-    res.status(500).send({ message: "Something went wrong" });
-    return next(err);
-  }
-});
+// Sorted users: /users/fetchSortedUsers?sortOrder=desc
+router.get(
+  "/fetchSortedUsers",
+  asyncHandler(async (req, res) => {
+    const data = await userController.fetchSortedUsers({ sortOrder: req.query.sortOrder });
+    res.status(200).json(data);
+  })
+);
 
-// Fetch users withinn date range
-router.get("/fetchUsersByDateRange", async (req, res, next) => {
-  try {
-    const data = await userController.fetchUsersByDateRange(req.body);
-    res.status(200).send({ message: "Data fetched succesfully", data });
-    return next();
-  } catch (err) {
-    res.status(500).send({ message: "Something went wrong" });
-    return next(err);
-  }
-});
+// Users within date range: /users/fetchUsersByDateRange?startDateStr=01/01/2026&endDateStr=31/01/2026
+router.get(
+  "/fetchUsersByDateRange",
+  asyncHandler(async (req, res) => {
+    const data = await userController.fetchUsersByDateRange({
+      startDateStr: req.query.startDateStr,
+      endDateStr: req.query.endDateStr,
+    });
+    res.status(200).json(data);
+  })
+);
 
-// User profile edit
-router.put("/edit-profile", async (req, res) => {
-  try {
+// Edit own profile (userId comes from the JWT via authenticate middleware)
+router.put(
+  "/edit-profile",
+  asyncHandler(async (req, res) => {
     const data = await userController.editProfile(req.userId, req.body);
-    res.status(200).send(data);
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Something went wrong!", error: error.message });
-  }
-});
+    res.status(200).json(data);
+  })
+);
 
 module.exports = router;
