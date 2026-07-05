@@ -9,15 +9,16 @@ const registerUser = async (data) => {
   if (existingUser) {
     throw new ApiError(409, "A user with this email already exists");
   }
-  const newUser = new User(data);
-  await newUser.save();
-  return { message: "User registered successfully", data: newUser };
+const userSafe = newUser.toObject();
+delete userSafe.password;
+
+return { message: "User registered successfully", data: userSafe };
 };
 
 // User Login
 const userLogin = async (data) => {
   const { email, password } = data;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");  
   if (!user) {
     throw new ApiError(401, "Invalid credentials");
   }
