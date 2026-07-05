@@ -29,6 +29,7 @@ const deleteUser = async (id) => {
 const fetchSortedUsers = async ({ sortOrder }) => {
   const users = await userSchema.aggregate([
     { $sort: { time_of_registration: sortOrder === "desc" ? -1 : 1 } },
+    { $project: { password: 0 } },
   ]);
   return { message: "Users fetched successfully", data: users };
 };
@@ -49,6 +50,7 @@ const fetchUsersByDateRange = async ({ startDateStr, endDateStr }) => {
       },
     },
     { $sort: { time_of_registration: -1 } },
+    { $project: { password: 0 } },
   ]);
 
   return { message: "Users fetched successfully", data: users };
