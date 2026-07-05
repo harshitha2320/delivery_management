@@ -10,11 +10,11 @@ const authenticate = async (req, res, next) => {
 
   try {
     const decoded = verifyToken(token);
-    // req.userId = decoded.userId;
+    req.userId = decoded.userId;
     next();
   } catch (err) {
-    console.error(err);
-    return res.status(400).json({ message: "Invalid token" });
+    // console.error(err);
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
 
