@@ -1,29 +1,25 @@
 const express = require("express");
 const orderController = require("../controllers/order");
+const asyncHandler = require("../utils/asyncHandler");
 
 const router = express.Router();
 
-// Adding orders
-router.post("/createOrder", async (req, res, next) => {
-  try {
+// Create order
+router.post(
+  "/createOrder",
+  asyncHandler(async (req, res) => {
     const data = await orderController.createOrder(req.body);
-    res.status(200).send(data);
-    return next();
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Something went wrong!" });
-    return next(error);
-  }
-});
+    res.status(201).json(data);
+  })
+);
 
 // Best route calculation
-router.get("/best-route", async (req, res) => {
-  try {
-    const bestRoute = await orderController.findBestRoute();
-    res.status(200).send(bestRoute);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "Error finding the best route", error: error.message });
-  }
-});
+router.get(
+  "/best-route",
+  asyncHandler(async (req, res) => {
+    const data = await orderController.findBestRoute();
+    res.status(200).json(data);
+  })
+);
 
 module.exports = router;
