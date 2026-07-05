@@ -8,6 +8,11 @@ const orderSchema = new Schema(
       ref: "User",
       required: true,
     },
+    assignedDriver: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     products: [
       {
         productId: {

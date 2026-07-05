@@ -2,11 +2,16 @@ const express = require("express");
 const authController = require("../controllers/auth");
 const asyncHandler = require("../utils/asyncHandler");
 const validate = require("../middleware/validate");
-const { registerRules, loginRules } = require("../validators/authValidators");
+const { authenticate, authorize } = require("../middleware/auth");
+const {
+  registerRules,
+  createUserRules,
+  loginRules,
+} = require("../validators/authValidators");
 
 const router = express.Router();
 
-// Register new user
+// Public: register (always a customer account)
 router.post(
   "/register",
   registerRules,
@@ -17,7 +22,20 @@ router.post(
   })
 );
 
-// User Login
+// Admin only: create driver/admin accounts
+router.post(
+  "/users",
+  authenticate,
+  authorize("admin"),
+  createUserRules,
+  validate,
+  asyncHandler(async (req, res) => {
+    const data = await authController.createUserWithRole(req.body);
+    res.status(201).json(data);
+  })
+);
+
+// Public: login
 router.post(
   "/login",
   loginRules,

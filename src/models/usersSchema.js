@@ -20,6 +20,11 @@ const userSchema = new Schema(
       unique: true,
       lowercase: true,
     },
+    role: {
+      type: String,
+      enum: ["customer", "driver", "admin"],
+      default: "customer",
+    },
     coordinates: {
       latitude: {
         type: Number,
@@ -42,7 +47,7 @@ const userSchema = new Schema(
     },
     time_of_registration: {
       type: Number,
-      default: () => Date.now(), // timestamp in epoch millis
+      default: () => Date.now(),
     },
   },
   {

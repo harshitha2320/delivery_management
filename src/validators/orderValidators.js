@@ -1,7 +1,8 @@
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 
+// userId comes from the JWT, not the body - reject attempts to set it
 const createOrderRules = [
-  body("userId").isMongoId().withMessage("userId must be a valid id"),
+  body("userId").not().exists().withMessage("userId is taken from your login token"),
   body("products")
     .isArray({ min: 1 })
     .withMessage("products must be a non-empty array"),
@@ -19,4 +20,11 @@ const createOrderRules = [
     .withMessage("Longitude must be a number between -180 and 180"),
 ];
 
-module.exports = { createOrderRules };
+const idParamRule = [param("id").isMongoId().withMessage("Invalid id in URL")];
+
+const assignRules = [
+  ...idParamRule,
+  body("driverId").isMongoId().withMessage("driverId must be a valid id"),
+];
+
+module.exports = { createOrderRules, idParamRule, assignRules };

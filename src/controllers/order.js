@@ -2,32 +2,104 @@ const axios = require("axios");
 
 const inventorySchema = require("../models/inventorySchema");
 const orderSchema = require("../models/orderSchema");
+const User = require("../models/usersSchema");
 const ApiError = require("../utils/ApiError");
 const { optimizeRoute } = require("../services/routeOptimizer");
 
-// Add orders
-const createOrder = async (data) => {
-  const newOrder = await orderSchema.create(data);
+/**
+ * Order lifecycle:
+ *   pending --(admin assigns driver)--> in progress --(driver)--> delivered
+ *   pending --(owning customer)--> canceled
+ */
+
+// Create order. Identity comes from the JWT, never the body -
+// otherwise anyone could create orders as someone else.
+const createOrder = async (data, userId) => {
+  const newOrder = await orderSchema.create({ ...data, userId });
   return { message: "Order created", data: newOrder };
 };
 
+// Admin assigns a driver to a pending order
+const assignDriver = async (orderId, driverId) => {
+  const driver = await User.findById(driverId);
+  if (!driver || driver.role !== "driver") {
+    throw new ApiError(422, "assignedDriver must reference a user with the driver role");
+  }
+
+  const order = await orderSchema.findById(orderId);
+  if (!order) throw new ApiError(404, "Order not found");
+  if (order.orderStatus !== "pending") {
+    throw new ApiError(409, `Cannot assign a driver to a ${order.orderStatus} order`);
+  }
+
+  order.assignedDriver = driverId;
+  order.orderStatus = "in progress";
+  await order.save();
+
+  return { message: "Driver assigned", data: order };
+};
+
+// Assigned driver marks the order delivered
+const markDelivered = async (orderId, callerUserId) => {
+  const order = await orderSchema.findById(orderId);
+  if (!order) throw new ApiError(404, "Order not found");
+
+  if (!order.assignedDriver || order.assignedDriver.toString() !== callerUserId) {
+    throw new ApiError(403, "Only the assigned driver can update this order");
+  }
+  if (order.orderStatus !== "in progress") {
+    throw new ApiError(409, `Cannot deliver a ${order.orderStatus} order`);
+  }
+
+  order.orderStatus = "delivered";
+  await order.save();
+
+  return { message: "Order delivered", data: order };
+};
+
+// Owning customer cancels a pending order
+const cancelOrder = async (orderId, callerUserId) => {
+  const order = await orderSchema.findById(orderId);
+  if (!order) throw new ApiError(404, "Order not found");
+
+  if (order.userId.toString() !== callerUserId) {
+    throw new ApiError(403, "You can only cancel your own orders");
+  }
+  if (order.orderStatus !== "pending") {
+    throw new ApiError(409, `Cannot cancel a ${order.orderStatus} order`);
+  }
+
+  order.orderStatus = "canceled";
+  await order.save();
+
+  return { message: "Order canceled", data: order };
+};
+
+// Customer sees own orders; admin sees all
+const getOrders = async (callerUserId, callerRole) => {
+  const filter = callerRole === "admin" ? {} : { userId: callerUserId };
+  const orders = await orderSchema.find(filter);
+  return { message: "Orders fetched", data: orders };
+};
+
 /**
- * Delivery route: start at inventory 1, visit every pending order,
- * end at inventory 2. Uses the full NxN Distance Matrix, then
- * nearest-neighbour + 2-opt (services/routeOptimizer).
+ * Delivery route across all pending/in-progress orders:
+ * start at inventory 1, visit every stop, end at inventory 2.
+ * Full NxN Distance Matrix, then NN + 2-opt (services/routeOptimizer).
  */
 const findBestRoute = async () => {
-  const orders = await orderSchema.find({});
+  const orders = await orderSchema.find({
+    orderStatus: { $in: ["pending", "in progress"] },
+  });
   const inventories = await inventorySchema.find({});
 
   if (inventories.length < 2) {
     throw new ApiError(422, "Route calculation requires at least two inventory locations");
   }
   if (orders.length === 0) {
-    throw new ApiError(422, "No orders to route");
+    throw new ApiError(422, "No active orders to route");
   }
 
-  // Location list: [start depot, ...order stops, end depot]
   const stops = [
     { label: `Inventory: ${inventories[0].name}`, ...toLatLng(inventories[0].coordinates) },
     ...orders.map((o) => ({
@@ -58,12 +130,6 @@ const findBestRoute = async () => {
 
 const toLatLng = (c) => ({ latitude: c.latitude, longitude: c.longitude });
 
-/**
- * Fetch the full NxN distance matrix: every location as both origin and
- * destination. Note the Distance Matrix API bills per element (N*N), and
- * caps elements per request - fine for demo-scale order counts; batching
- * would be needed at scale.
- */
 const getFullDistanceMatrix = async (stops) => {
   const coordString = stops.map((s) => `${s.latitude},${s.longitude}`).join("|");
 
@@ -85,15 +151,21 @@ const getFullDistanceMatrix = async (stops) => {
     );
   }
 
-  // rows[i].elements[j] = journey from location i to location j
   return response.data.rows.map((row, i) =>
     row.elements.map((el, j) => {
       if (el.status !== "OK") {
         throw new ApiError(502, `No route between stop ${i} and stop ${j} (${el.status})`);
       }
-      return el.distance.value; // metres
+      return el.distance.value;
     })
   );
 };
 
-module.exports = { createOrder, findBestRoute };
+module.exports = {
+  createOrder,
+  assignDriver,
+  markDelivered,
+  cancelOrder,
+  getOrders,
+  findBestRoute,
+};
