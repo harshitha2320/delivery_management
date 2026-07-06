@@ -10,7 +10,7 @@
     "dev": "nodemon ./src/server.js",
     "format": "prettier --write \"**/*.js\"",
     "format:check": "prettier --check \"**/*.js\"",
-    "test": "echo \"Tests coming in a later commit\" && exit 0"
+    "test": "jest --runInBand"
   },
   "keywords": [
     "express",
@@ -32,7 +32,10 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.1.7",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "supertest": "^7.2.2"
   }
 }

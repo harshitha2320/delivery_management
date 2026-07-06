@@ -19,7 +19,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const data = await authController.registerUser(req.body);
     res.status(201).json(data);
-  })
+  }),
 );
 
 // Admin only: create driver/admin accounts
@@ -32,7 +32,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const data = await authController.createUserWithRole(req.body);
     res.status(201).json(data);
-  })
+  }),
 );
 
 // Public: login
@@ -43,7 +43,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const data = await authController.userLogin(req.body);
     res.status(200).json(data);
-  })
+  }),
 );
 
 module.exports = router;

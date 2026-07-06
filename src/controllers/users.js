@@ -36,8 +36,13 @@ const fetchSortedUsers = async ({ sortOrder }) => {
 
 // Fetch users registered within a given date range
 const fetchUsersByDateRange = async ({ startDateStr, endDateStr }) => {
-  const startDate = DateTime.fromFormat(startDateStr || "", "dd/MM/yyyy").startOf("day");
-  const endDate = DateTime.fromFormat(endDateStr || "", "dd/MM/yyyy").endOf("day");
+  const startDate = DateTime.fromFormat(
+    startDateStr || "",
+    "dd/MM/yyyy",
+  ).startOf("day");
+  const endDate = DateTime.fromFormat(endDateStr || "", "dd/MM/yyyy").endOf(
+    "day",
+  );
 
   if (!startDate.isValid || !endDate.isValid) {
     throw new ApiError(400, "Dates must be in dd/MM/yyyy format");
@@ -46,7 +51,10 @@ const fetchUsersByDateRange = async ({ startDateStr, endDateStr }) => {
   const users = await userSchema.aggregate([
     {
       $match: {
-        time_of_registration: { $gte: startDate.toMillis(), $lte: endDate.toMillis() },
+        time_of_registration: {
+          $gte: startDate.toMillis(),
+          $lte: endDate.toMillis(),
+        },
       },
     },
     { $sort: { time_of_registration: -1 } },

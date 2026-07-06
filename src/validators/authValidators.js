@@ -2,7 +2,10 @@ const { body } = require("express-validator");
 
 const baseUserRules = [
   body("name").trim().notEmpty().withMessage("Name is required"),
-  body("email").isEmail().withMessage("A valid email is required").normalizeEmail(),
+  body("email")
+    .isEmail()
+    .withMessage("A valid email is required")
+    .normalizeEmail(),
   body("mobile")
     .trim()
     .matches(/^\+?[0-9]{7,15}$/)
@@ -33,7 +36,10 @@ const createUserRules = [
 ];
 
 const loginRules = [
-  body("email").isEmail().withMessage("A valid email is required").normalizeEmail(),
+  body("email")
+    .isEmail()
+    .withMessage("A valid email is required")
+    .normalizeEmail(),
   body("password").notEmpty().withMessage("Password is required"),
 ];
 

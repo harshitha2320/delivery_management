@@ -2,7 +2,9 @@ const { body, param } = require("express-validator");
 
 const addInventoryRules = [
   body("name").trim().notEmpty().withMessage("Name is required"),
-  body("capacity").isInt({ min: 1 }).withMessage("Capacity must be a positive integer"),
+  body("capacity")
+    .isInt({ min: 1 })
+    .withMessage("Capacity must be a positive integer"),
   body("coordinates.latitude")
     .isFloat({ min: -90, max: 90 })
     .withMessage("Latitude must be a number between -90 and 90"),

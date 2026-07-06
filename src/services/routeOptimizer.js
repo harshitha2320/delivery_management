@@ -94,7 +94,9 @@ const optimizeRoute = (matrix) => {
   const optimizedDistance = routeDistance(optimizedRoute, matrix);
 
   const improvementPct =
-    nnDistance === 0 ? 0 : ((nnDistance - optimizedDistance) / nnDistance) * 100;
+    nnDistance === 0
+      ? 0
+      : ((nnDistance - optimizedDistance) / nnDistance) * 100;
 
   return {
     nnRoute,
@@ -105,4 +107,9 @@ const optimizeRoute = (matrix) => {
   };
 };
 
-module.exports = { routeDistance, nearestNeighborRoute, twoOptImprove, optimizeRoute };
+module.exports = {
+  routeDistance,
+  nearestNeighborRoute,
+  twoOptImprove,
+  optimizeRoute,
+};

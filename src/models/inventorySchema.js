@@ -30,7 +30,7 @@ const inventorySchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Inventory", inventorySchema);

@@ -23,13 +23,19 @@ const createOrder = async (data, userId) => {
 const assignDriver = async (orderId, driverId) => {
   const driver = await User.findById(driverId);
   if (!driver || driver.role !== "driver") {
-    throw new ApiError(422, "assignedDriver must reference a user with the driver role");
+    throw new ApiError(
+      422,
+      "assignedDriver must reference a user with the driver role",
+    );
   }
 
   const order = await orderSchema.findById(orderId);
   if (!order) throw new ApiError(404, "Order not found");
   if (order.orderStatus !== "pending") {
-    throw new ApiError(409, `Cannot assign a driver to a ${order.orderStatus} order`);
+    throw new ApiError(
+      409,
+      `Cannot assign a driver to a ${order.orderStatus} order`,
+    );
   }
 
   order.assignedDriver = driverId;
@@ -44,7 +50,10 @@ const markDelivered = async (orderId, callerUserId) => {
   const order = await orderSchema.findById(orderId);
   if (!order) throw new ApiError(404, "Order not found");
 
-  if (!order.assignedDriver || order.assignedDriver.toString() !== callerUserId) {
+  if (
+    !order.assignedDriver ||
+    order.assignedDriver.toString() !== callerUserId
+  ) {
     throw new ApiError(403, "Only the assigned driver can update this order");
   }
   if (order.orderStatus !== "in progress") {
@@ -94,20 +103,29 @@ const findBestRoute = async () => {
   const inventories = await inventorySchema.find({});
 
   if (inventories.length < 2) {
-    throw new ApiError(422, "Route calculation requires at least two inventory locations");
+    throw new ApiError(
+      422,
+      "Route calculation requires at least two inventory locations",
+    );
   }
   if (orders.length === 0) {
     throw new ApiError(422, "No active orders to route");
   }
 
   const stops = [
-    { label: `Inventory: ${inventories[0].name}`, ...toLatLng(inventories[0].coordinates) },
+    {
+      label: `Inventory: ${inventories[0].name}`,
+      ...toLatLng(inventories[0].coordinates),
+    },
     ...orders.map((o) => ({
       label: `Order ${o._id}`,
       orderId: o._id,
       ...toLatLng(o.deliveryAddress),
     })),
-    { label: `Inventory: ${inventories[1].name}`, ...toLatLng(inventories[1].coordinates) },
+    {
+      label: `Inventory: ${inventories[1].name}`,
+      ...toLatLng(inventories[1].coordinates),
+    },
   ];
 
   const matrix = await getFullDistanceMatrix(stops);
@@ -131,7 +149,9 @@ const findBestRoute = async () => {
 const toLatLng = (c) => ({ latitude: c.latitude, longitude: c.longitude });
 
 const getFullDistanceMatrix = async (stops) => {
-  const coordString = stops.map((s) => `${s.latitude},${s.longitude}`).join("|");
+  const coordString = stops
+    .map((s) => `${s.latitude},${s.longitude}`)
+    .join("|");
 
   const response = await axios.get(
     "https://maps.googleapis.com/maps/api/distancematrix/json",
@@ -141,23 +161,26 @@ const getFullDistanceMatrix = async (stops) => {
         destinations: coordString,
         key: process.env.GOOGLE_API_KEY,
       },
-    }
+    },
   );
 
   if (response.data.status !== "OK") {
     throw new ApiError(
       502,
-      `Distance Matrix API error: ${response.data.error_message || "Unknown error"}`
+      `Distance Matrix API error: ${response.data.error_message || "Unknown error"}`,
     );
   }
 
   return response.data.rows.map((row, i) =>
     row.elements.map((el, j) => {
       if (el.status !== "OK") {
-        throw new ApiError(502, `No route between stop ${i} and stop ${j} (${el.status})`);
+        throw new ApiError(
+          502,
+          `No route between stop ${i} and stop ${j} (${el.status})`,
+        );
       }
       return el.distance.value;
-    })
+    }),
   );
 };
 

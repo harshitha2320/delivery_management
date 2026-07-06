@@ -20,7 +20,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const data = await orderController.createOrder(req.body, req.userId);
     res.status(201).json(data);
-  })
+  }),
 );
 
 // Customer: own orders; admin: all orders
@@ -29,7 +29,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const data = await orderController.getOrders(req.userId, req.userRole);
     res.status(200).json(data);
-  })
+  }),
 );
 
 // Admin: assign a driver to a pending order
@@ -39,9 +39,12 @@ router.patch(
   assignRules,
   validate,
   asyncHandler(async (req, res) => {
-    const data = await orderController.assignDriver(req.params.id, req.body.driverId);
+    const data = await orderController.assignDriver(
+      req.params.id,
+      req.body.driverId,
+    );
     res.status(200).json(data);
-  })
+  }),
 );
 
 // Driver: mark an in-progress order delivered
@@ -53,7 +56,7 @@ router.patch(
   asyncHandler(async (req, res) => {
     const data = await orderController.markDelivered(req.params.id, req.userId);
     res.status(200).json(data);
-  })
+  }),
 );
 
 // Customer: cancel own pending order
@@ -65,7 +68,7 @@ router.patch(
   asyncHandler(async (req, res) => {
     const data = await orderController.cancelOrder(req.params.id, req.userId);
     res.status(200).json(data);
-  })
+  }),
 );
 
 // Admin: optimised delivery route across active orders
@@ -75,7 +78,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const data = await orderController.findBestRoute();
     res.status(200).json(data);
-  })
+  }),
 );
 
 module.exports = router;
