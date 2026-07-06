@@ -2,7 +2,10 @@ const { body, param } = require("express-validator");
 
 // userId comes from the JWT, not the body - reject attempts to set it
 const createOrderRules = [
-  body("userId").not().exists().withMessage("userId is taken from your login token"),
+  body("userId")
+    .not()
+    .exists()
+    .withMessage("userId is taken from your login token"),
   body("products")
     .isArray({ min: 1 })
     .withMessage("products must be a non-empty array"),

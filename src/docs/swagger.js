@@ -10,7 +10,12 @@ const coordinates = {
   required: ["latitude", "longitude"],
   properties: {
     latitude: { type: "number", minimum: -90, maximum: 90, example: 53.4239 },
-    longitude: { type: "number", minimum: -180, maximum: 180, example: -7.9407 },
+    longitude: {
+      type: "number",
+      minimum: -180,
+      maximum: 180,
+      example: -7.9407,
+    },
   },
 };
 
@@ -126,7 +131,8 @@ const spec = {
       post: {
         tags: ["Auth"],
         summary: "Register a new customer account",
-        description: "Public. Always creates a customer; the role field is rejected.",
+        description:
+          "Public. Always creates a customer; the role field is rejected.",
         security: [],
         requestBody: {
           required: true,
@@ -134,7 +140,13 @@ const spec = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["name", "email", "mobile", "password", "coordinates"],
+                required: [
+                  "name",
+                  "email",
+                  "mobile",
+                  "password",
+                  "coordinates",
+                ],
                 properties: {
                   name: { type: "string" },
                   email: { type: "string" },
@@ -148,7 +160,14 @@ const spec = {
         },
         responses: {
           201: { description: "Registered" },
-          400: { description: "Validation failed", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          400: {
+            description: "Validation failed",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
           409: { description: "Email already exists" },
         },
       },
@@ -189,7 +208,14 @@ const spec = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["name", "email", "mobile", "password", "coordinates", "role"],
+                required: [
+                  "name",
+                  "email",
+                  "mobile",
+                  "password",
+                  "coordinates",
+                  "role",
+                ],
                 properties: {
                   name: { type: "string" },
                   email: { type: "string" },
@@ -213,7 +239,8 @@ const spec = {
       post: {
         tags: ["Orders"],
         summary: "Create an order (customer)",
-        description: "The order owner is taken from the JWT; a userId in the body is rejected.",
+        description:
+          "The order owner is taken from the JWT; a userId in the body is rejected.",
         requestBody: {
           required: true,
           content: {
@@ -240,7 +267,14 @@ const spec = {
           },
         },
         responses: {
-          201: { description: "Order created", content: { "application/json": { schema: { $ref: "#/components/schemas/Order" } } } },
+          201: {
+            description: "Order created",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Order" },
+              },
+            },
+          },
           400: { description: "Validation failed" },
         },
       },
@@ -249,14 +283,33 @@ const spec = {
       get: {
         tags: ["Orders"],
         summary: "List orders (own orders; admin sees all)",
-        responses: { 200: { description: "Orders", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Order" } } } } } },
+        responses: {
+          200: {
+            description: "Orders",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Order" },
+                },
+              },
+            },
+          },
+        },
       },
     },
     "/order/{id}/assign": {
       patch: {
         tags: ["Orders"],
         summary: "Assign a driver to a pending order (admin)",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -281,7 +334,14 @@ const spec = {
       patch: {
         tags: ["Orders"],
         summary: "Mark an in-progress order delivered (assigned driver only)",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
         responses: {
           200: { description: "Delivered" },
           403: { description: "Caller is not the assigned driver" },
@@ -293,7 +353,14 @@ const spec = {
       patch: {
         tags: ["Orders"],
         summary: "Cancel own pending order (customer)",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
         responses: {
           200: { description: "Canceled" },
           403: { description: "Not the order owner" },
@@ -304,14 +371,24 @@ const spec = {
     "/order/best-route": {
       get: {
         tags: ["Orders"],
-        summary: "Optimised delivery route across active orders (admin, driver)",
+        summary:
+          "Optimised delivery route across active orders (admin, driver)",
         description:
           "Builds a full NxN distance matrix from the Google Distance Matrix API, " +
           "constructs a route with nearest-neighbour, then refines it with 2-opt. " +
           "Reports both distances and the improvement percentage.",
         responses: {
-          200: { description: "Route", content: { "application/json": { schema: { $ref: "#/components/schemas/RouteResult" } } } },
-          422: { description: "Fewer than two inventories, or no active orders" },
+          200: {
+            description: "Route",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/RouteResult" },
+              },
+            },
+          },
+          422: {
+            description: "Fewer than two inventories, or no active orders",
+          },
           502: { description: "Distance Matrix API failure" },
         },
       },
@@ -320,30 +397,68 @@ const spec = {
       get: {
         tags: ["Users (admin)"],
         summary: "List all users",
-        responses: { 200: { description: "Users", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/User" } } } } } },
+        responses: {
+          200: {
+            description: "Users",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
       },
     },
     "/users/updateUser/{id}": {
       put: {
         tags: ["Users (admin)"],
         summary: "Update a user",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { 200: { description: "Updated" }, 404: { description: "Not found" } },
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: { description: "Updated" },
+          404: { description: "Not found" },
+        },
       },
     },
     "/users/deleteUser/{id}": {
       delete: {
         tags: ["Users (admin)"],
         summary: "Delete a user",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { 200: { description: "Deleted" }, 404: { description: "Not found" } },
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: { description: "Deleted" },
+          404: { description: "Not found" },
+        },
       },
     },
     "/users/fetchSortedUsers": {
       get: {
         tags: ["Users (admin)"],
         summary: "Users sorted by registration time",
-        parameters: [{ name: "sortOrder", in: "query", schema: { type: "string", enum: ["asc", "desc"] } }],
+        parameters: [
+          {
+            name: "sortOrder",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+          },
+        ],
         responses: { 200: { description: "Users" } },
       },
     },
@@ -352,17 +467,33 @@ const spec = {
         tags: ["Users (admin)"],
         summary: "Users registered within a date range",
         parameters: [
-          { name: "startDateStr", in: "query", required: true, schema: { type: "string", example: "01/01/2026" } },
-          { name: "endDateStr", in: "query", required: true, schema: { type: "string", example: "31/01/2026" } },
+          {
+            name: "startDateStr",
+            in: "query",
+            required: true,
+            schema: { type: "string", example: "01/01/2026" },
+          },
+          {
+            name: "endDateStr",
+            in: "query",
+            required: true,
+            schema: { type: "string", example: "31/01/2026" },
+          },
         ],
-        responses: { 200: { description: "Users" }, 400: { description: "Bad date format" } },
+        responses: {
+          200: { description: "Users" },
+          400: { description: "Bad date format" },
+        },
       },
     },
     "/users/edit-profile": {
       put: {
         tags: ["Users (admin)"],
         summary: "Edit own profile (name, mobile, coordinates only)",
-        responses: { 200: { description: "Updated" }, 400: { description: "Attempted to change email/password" } },
+        responses: {
+          200: { description: "Updated" },
+          400: { description: "Attempted to change email/password" },
+        },
       },
     },
     "/inventory/addInventory": {
@@ -371,25 +502,52 @@ const spec = {
         summary: "Add an inventory location",
         requestBody: {
           required: true,
-          content: { "application/json": { schema: { $ref: "#/components/schemas/Inventory" } } },
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Inventory" },
+            },
+          },
         },
-        responses: { 201: { description: "Created" }, 409: { description: "Name already exists" } },
+        responses: {
+          201: { description: "Created" },
+          409: { description: "Name already exists" },
+        },
       },
     },
     "/inventory/updateInventory/{id}": {
       put: {
         tags: ["Inventory (admin)"],
         summary: "Update an inventory location",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { 200: { description: "Updated" }, 404: { description: "Not found" } },
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: { description: "Updated" },
+          404: { description: "Not found" },
+        },
       },
     },
     "/inventory/deleteInventory/{id}": {
       delete: {
         tags: ["Inventory (admin)"],
         summary: "Delete an inventory location",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-        responses: { 200: { description: "Deleted" }, 404: { description: "Not found" } },
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: { description: "Deleted" },
+          404: { description: "Not found" },
+        },
       },
     },
   },

@@ -30,7 +30,9 @@ beforeAll(async () => {
   // Roles other than customer are created directly via the model,
   // mirroring what the seed script / an admin would do.
   const customer = await User.create(makeUser({ email: "cust@example.com" }));
-  const driver = await User.create(makeUser({ email: "driver@example.com", role: "driver" }));
+  const driver = await User.create(
+    makeUser({ email: "driver@example.com", role: "driver" }),
+  );
   await User.create(makeUser({ email: "admin@example.com", role: "admin" }));
 
   driverId = driver._id.toString();
@@ -93,7 +95,7 @@ describe("order lifecycle", () => {
 
   test("only the assigned driver can deliver", async () => {
     const other = await User.create(
-      makeUser({ email: "driver2@example.com", role: "driver" })
+      makeUser({ email: "driver2@example.com", role: "driver" }),
     );
     const otherToken = await login("driver2@example.com");
 

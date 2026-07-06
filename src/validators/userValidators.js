@@ -34,7 +34,10 @@ const editProfileRules = [
     .isFloat({ min: -180, max: 180 })
     .withMessage("Longitude must be between -180 and 180"),
   body("email").not().exists().withMessage("Email cannot be changed here"),
-  body("password").not().exists().withMessage("Password cannot be changed here"),
+  body("password")
+    .not()
+    .exists()
+    .withMessage("Password cannot be changed here"),
 ];
 
 module.exports = { idParamRule, sortRule, dateRangeRules, editProfileRules };

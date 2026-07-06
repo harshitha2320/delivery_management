@@ -56,8 +56,16 @@ describe("GET /order/best-route", () => {
 
   test("optimises across active orders and reports improvement", async () => {
     await Inventory.create([
-      { name: "Depot A", capacity: 100, coordinates: { latitude: 0, longitude: 0 } },
-      { name: "Depot B", capacity: 100, coordinates: { latitude: 6, longitude: 0 } },
+      {
+        name: "Depot A",
+        capacity: 100,
+        coordinates: { latitude: 0, longitude: 0 },
+      },
+      {
+        name: "Depot B",
+        capacity: 100,
+        coordinates: { latitude: 6, longitude: 0 },
+      },
     ]);
     const customer = await User.create({
       name: "Cust",
@@ -66,15 +74,17 @@ describe("GET /order/best-route", () => {
       password: "password123",
       coordinates: { latitude: 0, longitude: 0 },
     });
-    await Order.create([1, 2, 3].map((i) => ({
-      userId: customer._id,
-      products: [{ productId: customer._id, quantity: 1 }],
-      deliveryAddress: { latitude: i, longitude: 0 },
-    })));
+    await Order.create(
+      [1, 2, 3].map((i) => ({
+        userId: customer._id,
+        products: [{ productId: customer._id, quantity: 1 }],
+        deliveryAddress: { latitude: i, longitude: 0 },
+      })),
+    );
 
     // 5 stops: depot A, 3 orders, depot B - line layout
     const line = [0, 1, 2, 3, 6].map((a) =>
-      [0, 1, 2, 3, 6].map((b) => Math.abs(a - b) * 1000)
+      [0, 1, 2, 3, 6].map((b) => Math.abs(a - b) * 1000),
     );
     axios.get.mockResolvedValue(fakeMatrixResponse(line));
 

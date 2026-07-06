@@ -22,7 +22,13 @@ describe("routeDistance", () => {
 
 describe("nearestNeighborRoute", () => {
   test("starts at 0, ends at last index, visits every stop once", () => {
-    const matrix = buildMatrix([[0, 0], [1, 5], [2, 1], [3, 4], [6, 0]]);
+    const matrix = buildMatrix([
+      [0, 0],
+      [1, 5],
+      [2, 1],
+      [3, 4],
+      [6, 0],
+    ]);
     const route = nearestNeighborRoute(matrix);
 
     expect(route[0]).toBe(0);
@@ -48,12 +54,20 @@ describe("nearestNeighborRoute", () => {
 describe("twoOptImprove", () => {
   test("never makes the route worse and keeps endpoints fixed", () => {
     const matrix = buildMatrix([
-      [0, 0], [1, 5], [2, 0.5], [3, 5], [4, 0.5], [5, 5], [6, 0],
+      [0, 0],
+      [1, 5],
+      [2, 0.5],
+      [3, 5],
+      [4, 0.5],
+      [5, 5],
+      [6, 0],
     ]);
     const nn = nearestNeighborRoute(matrix);
     const improved = twoOptImprove(nn, matrix);
 
-    expect(routeDistance(improved, matrix)).toBeLessThanOrEqual(routeDistance(nn, matrix));
+    expect(routeDistance(improved, matrix)).toBeLessThanOrEqual(
+      routeDistance(nn, matrix),
+    );
     expect(improved[0]).toBe(0);
     expect(improved[improved.length - 1]).toBe(6);
     expect([...improved].sort()).toEqual([0, 1, 2, 3, 4, 5, 6]);
@@ -61,7 +75,13 @@ describe("twoOptImprove", () => {
 
   test("untangles a route with an obvious crossing", () => {
     // Straight line of stops; force a deliberately bad visiting order.
-    const matrix = buildMatrix([[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]]);
+    const matrix = buildMatrix([
+      [0, 0],
+      [1, 0],
+      [2, 0],
+      [3, 0],
+      [4, 0],
+    ]);
     const bad = [0, 3, 1, 2, 4]; // zig-zag
     const improved = twoOptImprove(bad, matrix);
     expect(routeDistance(improved, matrix)).toBe(4000); // straight through
@@ -71,7 +91,13 @@ describe("twoOptImprove", () => {
 describe("optimizeRoute", () => {
   test("reports both distances and a non-negative improvement", () => {
     const matrix = buildMatrix([
-      [0, 0], [1, 5], [2, 0.5], [3, 5], [4, 0.5], [5, 5], [6, 0],
+      [0, 0],
+      [1, 5],
+      [2, 0.5],
+      [3, 5],
+      [4, 0.5],
+      [5, 5],
+      [6, 0],
     ]);
     const result = optimizeRoute(matrix);
 
