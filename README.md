@@ -121,3 +121,11 @@ Runs 4 suites (~20 tests): algorithm unit tests, auth integration, the full orde
 ## License
 
 MIT
+
+## Live demo
+
+The API is deployed at **https://delivery-management-ekgg.onrender.com**
+
+Interactive docs: **https://delivery-management-ekgg.onrender.com/api-docs**
+
+> Note: hosted on Render's free tier - the server sleeps after 15 minutes of inactivity. The first request may take 30–60 seconds to wake it up. If the page is blank, wait a moment and refresh.
