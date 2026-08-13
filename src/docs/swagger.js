@@ -39,7 +39,13 @@ const spec = {
       "and delivery route optimisation using the Google Distance Matrix API with " +
       "nearest-neighbour construction + 2-opt refinement.",
   },
-  servers: [{ url: "http://localhost:3000", description: "Local development" }],
+  servers: [
+    {
+      url: "https://delivery-management-ekgg.onrender.com",
+      description: "Production",
+    },
+    { url: "http://localhost:3000", description: "Local development" },
+  ],
   components: {
     securitySchemes: {
       bearerAuth: {
